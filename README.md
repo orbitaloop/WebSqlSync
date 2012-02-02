@@ -7,9 +7,9 @@ Very easy to integrate and to use (2 functions to call : initSync and syncNow)
 Installing
 ==========
 
- - copy the webSqlSync.js file in your project and include it in your html :
+ - just copy the webSqlSync.js file in your project and include it in your html :
  
-        &lt;cript src="lib/webSqlSync.js" type="application/x-javascript" charset="utf-8">&lt;/script>"
+        script src="lib/webSqlSync.js" type="application/x-javascript" charset="utf-8">/script>"
 
 Usage
 =============
@@ -17,7 +17,7 @@ Usage
 ## Initialize
 You need to initialize the lib (at each startup for example).
 
-It will automatically create 2 tables, one to store all the new or modified elements (table new_elem) and one to store the date of the last sync (table sync_info). It will also create SQLite triggers in order to watch the INSERT or UPDATE on the tables you want to synchronize (to automatically insert the modified elements in the new_elem table):
+It will automatically create 2 tables (if they don't already exists, one to store all the new or modified elements (table new_elem) and one to store the date of the last sync (table sync_info). It will also create SQLite triggers in order to watch the INSERT or UPDATE on the tables you want to synchronize (to automatically insert the modified elements in the new_elem table):
 
     DBSYNC.initSync(TABLES_TO_SYNC, webSqlDb, sync_info, 'http://www.myserver.com', callBackEndInit);
 
