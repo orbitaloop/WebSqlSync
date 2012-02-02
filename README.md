@@ -9,7 +9,7 @@ Installing
 
  - copy the webSqlSync.js file in your project and include it in your html :
  
-<script src="lib/webSqlSync.js" type="application/x-javascript" charset="utf-8"></script>
+        &lt;cript src="lib/webSqlSync.js" type="application/x-javascript" charset="utf-8">&lt;/script>"
 
 Usage
 =============
