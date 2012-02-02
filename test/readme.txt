@@ -1,0 +1,1 @@
+To run the tests, open the webSqlSyncTest.html in safari.
