@@ -74,10 +74,10 @@ DBSYNC = {
 			for (i = 0; i < self.tablesToSync.length; i++) {
 				var curr = self.tablesToSync[i];
 				self._executeSql('CREATE TRIGGER IF NOT EXISTS update_' + curr.tableName + ' UPDATE ON ' + curr.tableName + ' ' +
-			  			'BEGIN INSERT INTO new_elem (table_name, id) VALUES ("' + curr.tableName + '", new.' + curr.idName + '); END;', [], transaction);
+						'BEGIN INSERT INTO new_elem (table_name, id) VALUES ("' + curr.tableName + '", new.' + curr.idName + '); END;', [], transaction);
 
 				self._executeSql('CREATE TRIGGER IF NOT EXISTS insert_' + curr.tableName + ' INSERT ON ' + curr.tableName + ' ' +
-			  			'BEGIN INSERT INTO new_elem (table_name, id) VALUES ("' + curr.tableName + '", new.' + curr.idName + '); END;', [], transaction);
+						'BEGIN INSERT INTO new_elem (table_name, id) VALUES ("' + curr.tableName + '", new.' + curr.idName + '); END;', [], transaction);
 				//TODO the DELETE is not handled. But it's not a pb if you do a logic delete (ex. update set state="DELETED")
 			}
 
@@ -112,7 +112,7 @@ DBSYNC = {
 			throw 'You should call the initSync before (db is null)';
 		}
 
-		self.syncResult = {syncOK: false, codeStr: 'noSync', message: 'No Sync yet', nbSent : 0, nbUpdated:0};
+		self.syncResult = {syncOK: false, codeStr: 'noSync', message: 'No Sync yet', nbSent: 0, nbUpdated: 0};
 
 		self.cbEndSync = function() {
 			callBackProgress(self.syncResult.message, 100, self.syncResult.codeStr);
@@ -133,8 +133,8 @@ DBSYNC = {
 					self.syncResult.localDataUpdated = self.syncResult.nbUpdated > 0;
 					self.syncResult.syncOK = true;
 					self.syncResult.codeStr = 'syncOk';
-					self.syncResult.message = 'Data synchronized successfuly. ('+self.syncResult.nbSent+
-						' saved, '+self.syncResult.nbUpdated+' updataed)';
+					self.syncResult.message = 'Data synchronized successfuly. (' + self.syncResult.nbSent +
+						' saved, ' + self.syncResult.nbUpdated + ' updataed)';
 
 					self.cbEndSync(self.syncResult);
 				});
@@ -210,10 +210,10 @@ DBSYNC = {
 			//To prepare your code for their eventual removal, use jqXHR.done(), jqXHR.fail(), and jqXHR.always() instead.
 			complete: function(serverAnswer) {
 				self.log('Server answered: ');
-	            self.log(serverAnswer);
+				self.log(serverAnswer);
 			},
             success: function(serverAnswer) {
-	            callBack(serverAnswer);
+				callBack(serverAnswer);
             },
 			error: function(serverAnswer) {
 				serverAnswer.result = 'ERROR';
@@ -265,7 +265,7 @@ DBSYNC = {
 					for (i = 0; i < nb; i++) {
 
 						curr = serverData.data[table.tableName][i];
-						
+
 						if (idInDb[curr[table.idName]]) {//update
 							/*ex : UPDATE "tableName" SET colonne 1 = [valeur 1], colonne 2 = [valeur 2]*/
 							sql = self._buildUpdateSQL(table.tableName, curr);
@@ -329,13 +329,13 @@ DBSYNC = {
 		/*return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),
 		date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());*/
 	  /*return date1.getUTCFullYear() + '-' +
-	    (date1.getUTCMonth() < 9 ? '0' : '') + (date1.getUTCMonth()+1) + '-' +
-	    (date1.getUTCDate() < 10 ? '0' : '') + date1.getUTCDate();*/
+			(date1.getUTCMonth() < 9 ? '0' : '') + (date1.getUTCMonth()+1) + '-' +
+			(date1.getUTCDate() < 10 ? '0' : '') + date1.getUTCDate();*/
 	},
 	_selectSql: function(sql, optionalTransaction, callBack) {
 		var self = this;
         self._executeSql(sql, [], optionalTransaction, function(tx, rs) {
-        	callBack(self._transformRs(rs));
+			callBack(self._transformRs(rs));
         }, self._errorHandler);
 	},
 	_transformRs: function(rs) {
