@@ -1,4 +1,3 @@
-
 /*******************************************************************
  * Sync a local WebSQL DB (SQLite) with a server.
  * Thanks to Lee Barney and QuickConnect for his inspiration
@@ -228,13 +227,13 @@ DBSYNC = {
 		var self = this;
 
 		if (!serverData || serverData.result === 'ERROR') {
-			//throw "No answer from the MosaLingua server"; //doesn't work in asynchronous
+			//throw "No answer from the  server"; //doesn't work in asynchronous
 			self.syncResult.syncOK = false;
 			self.syncResult.codeStr = 'syncKoServer';
 			if (serverData) {
 				self.syncResult.message = serverData.message;
 			} else {
-				self.syncResult.message = 'No answer from the MosaLingua server';
+				self.syncResult.message = 'No answer from the server';
 			}
 			self.cbEndSync(self.syncResult);
 			return;
