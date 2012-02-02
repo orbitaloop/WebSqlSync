@@ -1,4 +1,4 @@
-WebSqlSync
+WebSqlSync (beta)
 =====================
 Automatically synchronize a local WebSql database (SQLite in the navigator) to a server. (2 way sync : client <-> server)
 
