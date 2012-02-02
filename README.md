@@ -50,5 +50,5 @@ Where callBackSyncProgress is a function called at every step of the synchroniza
 
  - DELETE are not synchronized. An easy workaround is to do a logic delete with an update (ex. UPDATE elm SET flag='DELETED')
  - There are no example of server side sync for now. But I plan to commit our server code as an example in Java with #playframework (but it's not a generic code)
- - I have some JQunit tests, but they are not generic enough (it use our sample data and our server). I hope to have the time to work on it and to commit a more generic version of the tests
- - There is one dependency to JQuery (used only to send data with AJAX, look for jQuery.ajax). I welcome any pull request to remove this dependency (should be tested in chrome, safari, iOS WebKit and Android WebKit)
+ - The JQunit tests are too basic. Need to add more test cases.
+ - There is one dependency to JQuery (used only to send data with AJAX, look for jQuery.ajax). I welcome any pull request to remove this dependency (should be tested in Chrome, Safari, iOS WebKit and Android WebKit)
