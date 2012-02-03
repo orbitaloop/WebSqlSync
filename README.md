@@ -2,7 +2,7 @@ WebSqlSync (beta)
 =====================
 Automatically synchronize a local WebSql database (SQLite in the navigator) to a server. (2 way sync : client <-> server)
 
-Very easy to integrate and to use (2 functions to call : initSync and syncNow)
+Very easy to integrate and to use (2 functions to call : initSync and syncNow), non intrusif with your existing code.
 
 Installing
 ==========
@@ -48,7 +48,7 @@ Where callBackSyncProgress is a function called at every step of the synchroniza
 
 ### Limitations:
 
- - DELETE are not synchronized. An easy workaround is to do a logic delete with an update (ex. UPDATE elm SET flag='DELETED')
+ - DELETE are not handled. But an easy workaround is to do a logic delete with an update (ex. UPDATE elm SET flag='DELETED')
  - There are no example of server side sync for now. But I plan to commit our server code as an example in Java with #playframework (but it's not a generic code)
  - The JQunit tests are too basic. Need to add more test cases.
  - There is one dependency to JQuery (used only to send data with AJAX, look for jQuery.ajax). I welcome any pull request to remove this dependency (should be tested in Chrome, Safari, iOS WebKit and Android WebKit)
