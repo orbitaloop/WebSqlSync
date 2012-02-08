@@ -2,7 +2,7 @@ WebSqlSync (beta)
 =====================
 Automatically synchronize a local WebSql database (SQLite in the navigator) to a server. (2 way sync : client <-> server)
 
-Very easy to integrate and to use (2 functions to call : initSync and syncNow), non intrusif with your existing code.
+Very easy to integrate and to use (2 functions to call : initSync and syncNow), non intrusive with your existing code.
 
 Installing
 ==========
