@@ -32,14 +32,7 @@ DBSYNC = {
 	syncResult: null,
 	lastSyncDate: 0,
 	firstSync: false,
-	currentlySyncing: false,//TODO use it (check if we are not already syncing) and.. timeout
-    timeoutSeconds: 7,//TODO implement a timeout
 	cbEndSync: null,
-    syncType: 1,//TODO use it
-	//Type of synchronizations
-    TYPE_SYNC_NONE: 0,
-    TYPE_SYNC_ON_DEMAND: 1,//TODO we only have this mode for now
-    TYPE_SYNC_PERIODIC: 2,
 
 	/*************** PUBLIC FUNCTIONS ********************/
 	/**
