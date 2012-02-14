@@ -1,4 +1,4 @@
-WebSqlSync (beta)
+WebSqlSync
 =====================
 Automatically synchronize a local WebSql database (SQLite in the navigator) to a server. (2 way sync : client <-> server)
 
@@ -17,7 +17,7 @@ Usage
 ## Initialize
 You need to initialize the lib (at each startup for example).
 
-It will automatically create 2 tables (if they don't already exists, one to store all the new or modified elements (table new_elem) and one to store the date of the last sync (table sync_info). It will also create SQLite triggers in order to watch the INSERT or UPDATE on the tables you want to synchronize (to automatically insert the modified elements in the new_elem table):
+It will automatically create 2 tables (if they don't already exists). The table new_elem is used to store all the new or modified elements and the table sync_info is used to store the date of the last sync. It will also create SQLite triggers in order to watch the INSERT or UPDATE on the tables you want to synchronize (to automatically insert the modified elements in the new_elem table):
 
     DBSYNC.initSync(TABLES_TO_SYNC, webSqlDb, sync_info, 'http://www.myserver.com', callBackEndInit);
 
