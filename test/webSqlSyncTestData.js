@@ -19,7 +19,7 @@
  OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var SYNCDATA = {
-    url: 'http://www.yourserver/sync',
+    url: 'http://www.yourserver.com/sync',//TODO Set your server URL
     database: null,
     tableToSync: [{
         tableName: 'card_stat',
@@ -32,7 +32,7 @@ var SYNCDATA = {
         tableName: 'variable',
         idName: 'name'
     }],
-    sync_info: {
+    sync_info: {//Example of user info
         userEmail: 'test@gmail.com',//the user mail is not always here
         device_uuid: 'UNIQUE_DEVICE_ID_287CHBE873JB',//if no user mail, rely on the UUID
         lastSyncDate: 0,
@@ -460,6 +460,7 @@ var SYNCDATA = {
     serverData: {
         result: 'OK',//or 'ERROR'
         message: 'Data updated sucessfuly in the server ' + self.serverUrl,//or a useful error message
+        syncDate: '1327075596522',//The server handle the sync date to avoid pb with wrong date on the client
         data: {//data that has been changed since the last sync
             card_stat: [{
                 card_id: '123456789',//New Data

@@ -1,3 +1,4 @@
+
 /*******************************************************************
  * Sync a local WebSQL DB (SQLite) with a server.
  * Thanks to Lee Barney and QuickConnect for his inspiration
@@ -67,10 +68,10 @@ DBSYNC = {
 			for (i = 0; i < self.tablesToSync.length; i++) {
 				var curr = self.tablesToSync[i];
 				self._executeSql('CREATE TRIGGER IF NOT EXISTS update_' + curr.tableName + ' UPDATE ON ' + curr.tableName + ' ' +
-						'BEGIN INSERT INTO new_elem (table_name, id) VALUES ("' + curr.tableName + '", new.' + curr.idName + '); END;', [], transaction);
+			  			'BEGIN INSERT INTO new_elem (table_name, id) VALUES ("' + curr.tableName + '", new.' + curr.idName + '); END;', [], transaction);
 
 				self._executeSql('CREATE TRIGGER IF NOT EXISTS insert_' + curr.tableName + ' INSERT ON ' + curr.tableName + ' ' +
-						'BEGIN INSERT INTO new_elem (table_name, id) VALUES ("' + curr.tableName + '", new.' + curr.idName + '); END;', [], transaction);
+			  			'BEGIN INSERT INTO new_elem (table_name, id) VALUES ("' + curr.tableName + '", new.' + curr.idName + '); END;', [], transaction);
 				//TODO the DELETE is not handled. But it's not a pb if you do a logic delete (ex. update set state="DELETED")
 			}
 
@@ -105,7 +106,7 @@ DBSYNC = {
 			throw 'You should call the initSync before (db is null)';
 		}
 
-		self.syncResult = {syncOK: false, codeStr: 'noSync', message: 'No Sync yet', nbSent: 0, nbUpdated: 0};
+		self.syncResult = {syncOK: false, codeStr: 'noSync', message: 'No Sync yet', nbSent : 0, nbUpdated:0};
 
 		self.cbEndSync = function() {
 			callBackProgress(self.syncResult.message, 100, self.syncResult.codeStr);
@@ -126,8 +127,8 @@ DBSYNC = {
 					self.syncResult.localDataUpdated = self.syncResult.nbUpdated > 0;
 					self.syncResult.syncOK = true;
 					self.syncResult.codeStr = 'syncOk';
-					self.syncResult.message = 'Data synchronized successfuly. (' + self.syncResult.nbSent +
-						' saved, ' + self.syncResult.nbUpdated + ' updataed)';
+					self.syncResult.message = 'Data synchronized successfuly. ('+self.syncResult.nbSent+
+						' saved, '+self.syncResult.nbUpdated+' updated)';
 
 					self.cbEndSync(self.syncResult);
 				});
@@ -203,10 +204,10 @@ DBSYNC = {
 			//To prepare your code for their eventual removal, use jqXHR.done(), jqXHR.fail(), and jqXHR.always() instead.
 			complete: function(serverAnswer) {
 				self.log('Server answered: ');
-				self.log(serverAnswer);
+	            self.log(serverAnswer);
 			},
             success: function(serverAnswer) {
-				callBack(serverAnswer);
+	            callBack(serverAnswer);
             },
 			error: function(serverAnswer) {
 				serverAnswer.result = 'ERROR';
@@ -234,7 +235,8 @@ DBSYNC = {
 		if (typeof serverData.data === 'undefined' || serverData.data.length === 0) {
 			//nothing to update
 			self.db.transaction(function(tx) {
-				self._finishSync(tx, callBack(0));
+				//We only use the server date to avoid dealing with wrong date from the client
+				self._finishSync(serverData.syncDate, tx, callBack(0));
 			});
 			return;
 		}
@@ -258,7 +260,7 @@ DBSYNC = {
 					for (i = 0; i < nb; i++) {
 
 						curr = serverData.data[table.tableName][i];
-
+						
 						if (idInDb[curr[table.idName]]) {//update
 							/*ex : UPDATE "tableName" SET colonne 1 = [valeur 1], colonne 2 = [valeur 2]*/
 							sql = self._buildUpdateSQL(table.tableName, curr);
@@ -277,7 +279,7 @@ DBSYNC = {
 					if (counterNbTable === nbTables) {
 						//TODO set counterNbElm to info
 						self.syncResult.nbUpdated = counterNbElm;
-						self._finishSync(tx, callBack);
+						self._finishSync(serverData.syncDate, tx, callBack);
 					}
 				});
 			});//end forEach
@@ -306,11 +308,11 @@ DBSYNC = {
 			dataCallBack(idsInDb);
 		});
 	},
-	_finishSync: function(tx, callBack) {
+	_finishSync: function(syncDate, tx, callBack) {
 		this.firstSync = false;
-		this.lastSyncDate = this._dateUTC(new Date());
+		this.lastSyncDate = syncDate;
 		this.syncInfo.lastSyncDate = this.lastSyncDate;
-		this._executeSql('UPDATE sync_info SET last_sync = "' + this.lastSyncDate + '"');
+		this._executeSql('UPDATE sync_info SET last_sync = "' + this.lastSyncDate + '"', [], tx);
 		this._executeSql('DELETE FROM new_elem', [], tx);
 		callBack();
 	},
@@ -322,13 +324,13 @@ DBSYNC = {
 		/*return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),
 		date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());*/
 	  /*return date1.getUTCFullYear() + '-' +
-			(date1.getUTCMonth() < 9 ? '0' : '') + (date1.getUTCMonth()+1) + '-' +
-			(date1.getUTCDate() < 10 ? '0' : '') + date1.getUTCDate();*/
+	    (date1.getUTCMonth() < 9 ? '0' : '') + (date1.getUTCMonth()+1) + '-' +
+	    (date1.getUTCDate() < 10 ? '0' : '') + date1.getUTCDate();*/
 	},
 	_selectSql: function(sql, optionalTransaction, callBack) {
 		var self = this;
         self._executeSql(sql, [], optionalTransaction, function(tx, rs) {
-			callBack(self._transformRs(rs));
+        	callBack(self._transformRs(rs));
         }, self._errorHandler);
 	},
 	_transformRs: function(rs) {
