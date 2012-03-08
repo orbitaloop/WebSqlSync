@@ -67,10 +67,10 @@ DBSYNC = {
 			//create triggers to automatically fill the new_elem table (this table will contains a pointer to all the modified data)
 			for (i = 0; i < self.tablesToSync.length; i++) {
 				var curr = self.tablesToSync[i];
-				self._executeSql('CREATE TRIGGER IF NOT EXISTS update_' + curr.tableName + ' UPDATE ON ' + curr.tableName + ' ' +
+				self._executeSql('CREATE TRIGGER IF NOT EXISTS update_' + curr.tableName + ' AFTER UPDATE ON ' + curr.tableName + ' ' +
 			  			'BEGIN INSERT INTO new_elem (table_name, id) VALUES ("' + curr.tableName + '", new.' + curr.idName + '); END;', [], transaction);
 
-				self._executeSql('CREATE TRIGGER IF NOT EXISTS insert_' + curr.tableName + ' INSERT ON ' + curr.tableName + ' ' +
+				self._executeSql('CREATE TRIGGER IF NOT EXISTS insert_' + curr.tableName + ' AFTER INSERT ON ' + curr.tableName + ' ' +
 			  			'BEGIN INSERT INTO new_elem (table_name, id) VALUES ("' + curr.tableName + '", new.' + curr.idName + '); END;', [], transaction);
 				//TODO the DELETE is not handled. But it's not a pb if you do a logic delete (ex. update set state="DELETED")
 			}
