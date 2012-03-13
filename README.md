@@ -1,6 +1,7 @@
 WebSqlSync
 =====================
 Automatically synchronize a local WebSql database (SQLite in the navigator) to a server :
+
  - 2 way sync : client <-> server
  - Incremental synchronization (send only the necessary data)
  - works with webapp and phonegap app (WebSql or PGSQLitePlugin)
