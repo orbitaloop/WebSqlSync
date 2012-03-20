@@ -246,6 +246,10 @@ DBSYNC = {
 			var counterNbElm = 0;
 			self.tablesToSync.forEach(function(table) {
 				var currData = serverData.data[table.tableName];
+				if (typeof currData === "undefined") {
+					//Should always be defined (even if 0 elements)
+					currData = [];
+				}
 				var nb = currData.length;
 				counterNbElm += nb;
 				self.log('There are ' + nb + ' new or modified elements in the table ' + table.tableName + ' to save in the local DB');
