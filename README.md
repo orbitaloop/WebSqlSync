@@ -4,7 +4,9 @@ Automatically synchronize a local WebSql database (SQLite in the navigator) to a
 
  - 2 way sync : client <-> server
  - Incremental synchronization (send only the necessary data)
- - works with webapp and phonegap app (WebSql or PGSQLitePlugin)
+ - Works offline. All data changes are tracked and synchronized with the server once the connection returns
+ - Support for replicating changes to multiple devices
+ - works with webapp and phonegap app (iOS, Android, etc.), without changing your code
 
 Very easy to integrate and to use (2 functions to call : initSync and syncNow), non intrusive with your existing code.
 
@@ -25,7 +27,7 @@ It will automatically create 2 tables (if they don't already exists). The table 
 
     DBSYNC.initSync(TABLES_TO_SYNC, webSqlDb, sync_info, 'http://www.myserver.com', callBackEndInit);
 
-Where TABLES_TO_SYNC is the list of table that you want to sync with the server, ex :
+Where TABLES_TO_SYNC is the list of DB table that you want to sync with the server, ex :
 
     TABLES_TO_SYNC = [
         {tableName : 'table1', idName : 'the_id'},
@@ -54,5 +56,5 @@ Where callBackSyncProgress is a function called at every step of the synchroniza
 
  - DELETE are not handled. But an easy workaround is to do a logic delete with an update (ex. UPDATE elm SET flag='DELETED')
  - There are no example of generic server side sync for now. But there is our server code as an example in Java with #playframework (but it's not a generic code). Check the test/ directory
- - The JQunit tests are too basic. Need to add more test cases. But this code is working on my 13 apps (iOS/Android) in production, with millions of data synchronized
+ - Need to add more JQunit test cases. But this code is working on more than 13 apps (iOS/Android) in production, with millions of data synchronized
  - There is one dependency to JQuery (used only to send data with AJAX, look for jQuery.ajax). I welcome any pull request to remove this dependency (should be tested in Chrome, Safari, iOS WebKit and Android WebKit)
