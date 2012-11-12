@@ -1,4 +1,3 @@
-
 /*******************************************************************
  * Sync a local WebSQL DB (SQLite) with a server.
  * Thanks to Lee Barney and QuickConnect for his inspiration
@@ -117,7 +116,7 @@ DBSYNC = {
 
 		self._getDataToBackup(function(data) {
 
-			callBackProgress('Sending ' + self.syncResult.nbSent + ' elements to the server', 20, 'sendData');
+			callBackProgress('Sending ' + self.syncResult.nbSent + ' new elements to the server', 20, 'sendData');
 
 			self._sendDataToServer(data, function(serverData) {
 
