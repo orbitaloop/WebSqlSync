@@ -77,7 +77,7 @@ DBSYNC = {
 			self._selectSql('SELECT last_sync FROM sync_info', transaction, function(res) {
 
 				if (res.length === 0 || res[0] == 0) {//First sync (or data lost)
-					self._executeSql('INSERT INTO sync_info (last_sync) VALUES (0)', [], transaction);
+					self._executeSql('INSERT OR REPLACE INTO sync_info (last_sync) VALUES (0)', [], transaction);
 					self.firstSync = true;
 					self.lastSyncDate = 0;//self._dateUTC(new Date('01/01/1970 00:00:00 GMT'))
 					self.syncInfo.lastSyncDate = self.lastSyncDate;
