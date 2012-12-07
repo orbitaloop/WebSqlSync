@@ -57,5 +57,5 @@ Where callBackSyncProgress is a function called at every step of the synchroniza
 
  - DELETE are not handled. But an easy workaround is to do a logic delete with an update (ex. UPDATE elm SET flag='DELETED')
  - There are no example of generic server side sync for now. But there is our server code as an example in Java with #playframework (but it's not a generic code). Check the test/ directory
- - Need to add even more JQunit test cases. But this code is working on more than 13 apps (iOS/Android) in production, with millions of data synchronized
+ - Need to add even more JQunit test cases. But this code is working on more than 18 apps (iOS/Android) in production, with millions of db rows synchronized
  - There is one dependency to JQuery (used only to send data with AJAX, look for jQuery.ajax). I welcome any pull request to remove this dependency
