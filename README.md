@@ -56,7 +56,7 @@ Client / server communication
 =============
 Currently, there is no generic server code, but you can find an example of a Java server code in the directory test/.
 
-You can also run the QUnit test to undertand the communication between the client (web app) and the server. 
+You can also run the QUnit test to understand the communication between the client (web app) and the server. 
 
 Here is a scenario to show an example of input / output data between the client and the server:
 
@@ -67,7 +67,7 @@ In the client side, WebSqlSync has detected that 2 rows of the table "card_stat"
 	    "info": {/* the info to identify the user. It's the obect "sync_info" in parameter of the initSync method. You can put everything you need to identify the client */
 	        "userEmail": "testSafari2@gmail.com",
 	        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/534.52.7 (KHTML, like Gecko) Version/5.1.2 Safari/534.52.7",
-	        "lastSyncDate": 1326553035406,/* added automatically by WebSqlSy*/
+	        "lastSyncDate": 1326553035406,/* added automatically by WebSqlSync*/
 	    },
 	    "data": {/* WebSQL detect the 2 modified objects and send them*/
 	        "card_stat": [{
@@ -88,8 +88,8 @@ In the client side, WebSqlSync has detected that 2 rows of the table "card_stat"
 ## server output :
 The server receives the previous client data, and should save it in a DB (INSERT OR REPLACE). 
 The DB schema on the server side should be nearly identical as the client DB, except that you should add the following columns (at least):
- - client_id (ex. email address like in this example, in order to identify the client, because the table on the server side will have all the data)
- - last_sync_date with the current date (now). All the sync dates are managed in the server side in order to avoid problems with timezone or clients with wrong date.
+ - client_id (ex. email address like in this example, in order to identify the client, because the table on the server side will have all the data of the different clients)
+ - last_sync_date with the current date (now). All the sync dates are managed in the server side in order to avoid problems with time zone or clients with wrong date.
 
 Once the server has saved the client data, it should look if there is more recent data to send to the client. 
 To do that, it will use the clientData.lastSyncDate he just received and compare to the server column 'last_sync_date' 
