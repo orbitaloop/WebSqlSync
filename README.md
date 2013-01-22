@@ -52,8 +52,72 @@ Where callBackSyncProgress is a function called at every step of the synchroniza
          $('#uiProgress').html(message+' ('+percent+'%)');
     },
 
+Client / server communication
+=============
+Currently, there is no generic server code, but you can find an example of a Java server code in the directory test/.
 
-### Limitations:
+You can also run the QUnit test to undertand the communication between the client (web app) and the server. 
+
+Here is a scenario to show an example of input / output data between the client and the server:
+
+## client output :
+In the client side, WebSqlSync has detected that 2 rows of the table "card_stat" has been modified (or created). So when the syncNow method is called, it will send to the server the following JSON:
+
+	clientData: {
+	    "info": {/* the info to identify the user. It's the obect "sync_info" in parameter of the initSync method. You can put everything you need to identify the client */
+	        "userEmail": "testSafari2@gmail.com",
+	        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/534.52.7 (KHTML, like Gecko) Version/5.1.2 Safari/534.52.7",
+	        "lastSyncDate": 1326553035406,/* added automatically by WebSqlSy*/
+	    },
+	    "data": {/* WebSQL detect the 2 modified objects and send them*/
+	        "card_stat": [{
+	            "card_id": 100330,
+	            "firstViewTime": 1326845243.743,
+	            "previousInterval": 0,
+	            "interval": 4.091382259037346,
+	        },
+	        {
+	            "card_id": 100340,
+	            "firstViewTime": 1326845248.655,
+	            "previousInterval": 0,
+	            "interval": 4.197426769416779,
+	        }
+	    }
+	 }
+
+## server output :
+The server receives the previous client data, and should save it in a DB (INSERT OR REPLACE). 
+The DB schema on the server side should be nearly identical as the client DB, except that you should add the following columns (at least):
+ - client_id (ex. email address like in this example, in order to identify the client, because the table on the server side will have all the data)
+ - last_sync_date with the current date (now). All the sync dates are managed in the server side in order to avoid problems with timezone or clients with wrong date.
+
+Once the server has saved the client data, it should look if there is more recent data to send to the client. 
+To do that, it will use the clientData.lastSyncDate he just received and compare to the server column 'last_sync_date' 
+
+ex. of SQL request : select * from card_stat where card_stat.last_sync_date > clientData.lastSyncDate
+
+Then, it should send the current JSON to the client:
+
+    serverAnswer: {/* Ex. of server answer : */
+        result: 'OK',//or 'ERROR'
+        message: 'Data updated sucessfuly in the server ' + self.serverUrl,//or a useful error message
+        syncDate: '1327075596522',//The server return the current date that will be used for the next sync (the server handle the sync date to avoid pb with wrong date on the client)
+        data: {//data that has been changed since the last sync
+            card_stat: [{
+                card_id: '123456789',//New Data on the server that is not on the client
+                due: 1326592755.5729024,
+                eFactor: 2.5,
+                firstViewTime: 1326553031.718,
+                interval: 0.4597668391498737
+            }]
+        }
+    }
+
+
+I hope it will help you to implement your own server logic, or provide an example of sever code in another language (contributions are welcome!).
+
+
+## Limitations:
 
  - DELETE are not handled. But an easy workaround is to do a logic delete with an update (ex. UPDATE elm SET flag='DELETED')
  - There are no example of generic server side sync for now. But there is our server code as an example in Java with #playframework (but it's not a generic code). Check the test/ directory
