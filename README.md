@@ -61,7 +61,7 @@ You can also run the QUnit test to understand the communication between the clie
 Here is a scenario to show an example of input / output data between the client and the server:
 
 ## client output :
-In the client side, WebSqlSync has detected that 2 rows of the table "card_stat" has been modified (or created). So when the syncNow method is called, it will send to the server the following JSON:
+It's always the client who initiate the synchronization. So, let's say, in the client app (ex. mobile app), WebSqlSync has detected that 2 rows of the table "card_stat" has been modified (or created). So when the syncNow method is called, it will send to the server the following JSON:
 
 	clientData: {
 	    "info": {/* the info to identify the user. It's the obect "sync_info" in parameter of the initSync method. You can put everything you need to identify the client */
@@ -69,7 +69,7 @@ In the client side, WebSqlSync has detected that 2 rows of the table "card_stat"
 	        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/534.52.7 (KHTML, like Gecko) Version/5.1.2 Safari/534.52.7",
 	        "lastSyncDate": 1326553035406,/* added automatically by WebSqlSync*/
 	    },
-	    "data": {/* WebSQL detect the 2 modified objects and send them*/
+	    "data": {/* WebSQL detect the 2 modified objects and send them. If there is no change on the client, data will be empty */
 	        "card_stat": [{
 	            "card_id": 100330,
 	            "firstViewTime": 1326845243.743,
@@ -102,7 +102,7 @@ Then, it should send the current JSON to the client:
         result: 'OK',//or 'ERROR'
         message: 'Data updated sucessfuly in the server ' + self.serverUrl,//or a useful error message
         syncDate: '1327075596522',//The server return the current date that will be used for the next sync (the server handle the sync date to avoid pb with wrong date on the client)
-        data: {//data that has been changed since the last sync
+        data: {/*data that has been changed since the last sync. If there is no changes in the server, data will be empty */
             card_stat: [{
                 card_id: '123456789',//New Data on the server that is not on the client
                 due: 1326592755.5729024,
