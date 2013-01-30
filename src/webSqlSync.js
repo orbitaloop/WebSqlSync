@@ -1,3 +1,4 @@
+
 /*******************************************************************
  * Sync a local WebSQL DB (SQLite) with a server.
  * Thanks to Lee Barney and QuickConnect for his inspiration
@@ -39,7 +40,7 @@ DBSYNC = {
 	 * Initialize the synchronization (should be called before any call to syncNow)
 	 * (it will create automatically the necessary tables and triggers if needed)
 	 * @param {Object} theTablesToSync : ex : [{ tableName: 'card_stat', idName: 'card_id'}, {tableName: 'stat'}] //no need to precise id if the idName is "id".
-	 * @param {Object} dbObject : the WebSQL databse object.
+	 * @param {Object} dbObject : the WebSQL database object.
 	 * @param {Object} theSyncInfo : will be sent to the server (useful to store any ID or device info).
 	 * @param {Object} theServerUrl
 	 * @param {Object} callBack(firstInit) : called when init finished.
@@ -66,32 +67,32 @@ DBSYNC = {
 			//create triggers to automatically fill the new_elem table (this table will contains a pointer to all the modified data)
 			for (i = 0; i < self.tablesToSync.length; i++) {
 				var curr = self.tablesToSync[i];
-				self._executeSql('CREATE TRIGGER IF NOT EXISTS update_' + curr.tableName + ' AFTER UPDATE ON ' + curr.tableName + ' ' +
+				self._executeSql('CREATE TRIGGER IF NOT EXISTS update_' + curr.tableName + '  AFTER UPDATE ON ' + curr.tableName + ' ' +
 			  			'BEGIN INSERT INTO new_elem (table_name, id) VALUES ("' + curr.tableName + '", new.' + curr.idName + '); END;', [], transaction);
 
-				self._executeSql('CREATE TRIGGER IF NOT EXISTS insert_' + curr.tableName + ' AFTER INSERT ON ' + curr.tableName + ' ' +
+				self._executeSql('CREATE TRIGGER IF NOT EXISTS insert_' + curr.tableName + '  AFTER INSERT ON ' + curr.tableName + ' ' +
 			  			'BEGIN INSERT INTO new_elem (table_name, id) VALUES ("' + curr.tableName + '", new.' + curr.idName + '); END;', [], transaction);
 				//TODO the DELETE is not handled. But it's not a pb if you do a logic delete (ex. update set state="DELETED")
 			}
+		});//end tx
+		self._selectSql('SELECT last_sync FROM sync_info', null, function(res) {
 
-			self._selectSql('SELECT last_sync FROM sync_info', transaction, function(res) {
-
-				if (res.length === 0 || res[0] == 0) {//First sync (or data lost)
-					self._executeSql('INSERT OR REPLACE INTO sync_info (last_sync) VALUES (0)', [], transaction);
+			if (res.length === 0 || res[0] == 0) {//First sync (or data lost)
+				self._executeSql('INSERT OR REPLACE INTO sync_info (last_sync) VALUES (0)', []);
+				self.firstSync = true;
+				self.lastSyncDate = 0;
+				self.syncInfo.lastSyncDate = self.lastSyncDate;
+				callBack(true);
+			} else {
+				self.lastSyncDate = res[0].last_sync;
+				if (self.lastSyncDate === 0) {
 					self.firstSync = true;
-					self.lastSyncDate = 0;//self._dateUTC(new Date('01/01/1970 00:00:00 GMT'))
-					self.syncInfo.lastSyncDate = self.lastSyncDate;
-					callBack(true);
-				} else {
-					self.lastSyncDate = res[0].last_sync;
-					if (self.lastSyncDate === 0) {
-						self.firstSync = true;
-					}
-					self.syncInfo.lastSyncDate = self.lastSyncDate;
-					callBack(false);
 				}
-			});
+				self.syncInfo.lastSyncDate = self.lastSyncDate;
+				callBack(false);
+			}
 		});
+		
 	},
 
 	/**
@@ -116,7 +117,7 @@ DBSYNC = {
 
 		self._getDataToBackup(function(data) {
 
-			callBackProgress('Sending ' + self.syncResult.nbSent + ' new elements to the server', 20, 'sendData');
+			callBackProgress('Sending ' + self.syncResult.nbSent + ' elements to the server', 20, 'sendData');
 
 			self._sendDataToServer(data, function(serverData) {
 
@@ -127,7 +128,7 @@ DBSYNC = {
 					self.syncResult.syncOK = true;
 					self.syncResult.codeStr = 'syncOk';
 					self.syncResult.message = 'Data synchronized successfuly. ('+self.syncResult.nbSent+
-						' saved, '+self.syncResult.nbUpdated+' updated)';
+						' new/modified element saved, '+self.syncResult.nbUpdated+' updated)';
 
 					self.cbEndSync(self.syncResult);
 				});
@@ -136,14 +137,19 @@ DBSYNC = {
 
 	},
 
-	/* You can override the following methods to use your own log*/
+	/* You can override the following methods to use your own log */
 	log: function(message) {
 		console.log(message);
 	},
 	error: function(message) {
 		console.error(message);
 	},
-
+	/* resetSyncDate : Usefull to synchronize again all the local db content */
+	resetSyncDate: function() {
+		this.syncInfo.lastSyncDate = 0;
+		this.firstSync = true;
+		this._executeSql('UPDATE sync_info SET last_sync = "0"', []);
+	},
 	/*************** PRIVATE FUNCTIONS ********************/
 
 	_getDataToBackup: function(callBack) {
@@ -239,7 +245,6 @@ DBSYNC = {
 			});
 			return;
 		}
-
 		self.db.transaction(function(tx) {
 			var counterNbTable = 0, nbTables = self.tablesToSync.length;
 			var counterNbElm = 0;
@@ -257,17 +262,21 @@ DBSYNC = {
 				for (i = 0; i < nb; i++) {
 					listIdToCheck.push(serverData.data[table.tableName][i][table.idName]);
 				}
+				
 				self._getIdExitingInDB(table.tableName, table.idName, listIdToCheck, tx, function(idInDb) {
+					
 					var curr = null, sql = null;
 
 					for (i = 0; i < nb; i++) {
 
 						curr = serverData.data[table.tableName][i];
-						
+	
 						if (idInDb[curr[table.idName]]) {//update
+							
 							/*ex : UPDATE "tableName" SET colonne 1 = [valeur 1], colonne 2 = [valeur 2]*/
 							sql = self._buildUpdateSQL(table.tableName, curr);
 							sql += ' WHERE ' + table.idName + ' = "' + curr[table.idName] + '"';
+
 							self._executeSql(sql, [], tx);
 
 						} else {//insert
@@ -275,6 +284,7 @@ DBSYNC = {
 							var attList = self._getAttributesList(curr);
 							sql = self._buildInsertSQL(table.tableName, curr, attList);
 							var attValue = self._getMembersValue(curr, attList);
+
 							self._executeSql(sql, attValue, tx);
 						}
 					}//end for
@@ -284,9 +294,8 @@ DBSYNC = {
 						self.syncResult.nbUpdated = counterNbElm;
 						self._finishSync(serverData.syncDate, tx, callBack);
 					}
-				});
+				});//end getExisting Id
 			});//end forEach
-
 		});//end tx
 	},
 	/** return the listIdToCheck curated from the id that doesn't exist in tableName and idName
@@ -320,20 +329,13 @@ DBSYNC = {
 		callBack();
 	},
 
+
 /***************** DB  util ****************/
-	//Only UTC dates formated for MySQL
-	_dateUTC: function(date) {
-		return date.getTime();
-		/*return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),
-		date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());*/
-	  /*return date1.getUTCFullYear() + '-' +
-	    (date1.getUTCMonth() < 9 ? '0' : '') + (date1.getUTCMonth()+1) + '-' +
-	    (date1.getUTCDate() < 10 ? '0' : '') + date1.getUTCDate();*/
-	},
+
 	_selectSql: function(sql, optionalTransaction, callBack) {
 		var self = this;
         self._executeSql(sql, [], optionalTransaction, function(tx, rs) {
-        	callBack(self._transformRs(rs));
+		callBack(self._transformRs(rs));
         }, self._errorHandler);
 	},
 	_transformRs: function(rs) {
@@ -478,5 +480,4 @@ DBSYNC = {
 		}
 		return result;
 	}
-
 };
