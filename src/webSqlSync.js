@@ -1,4 +1,3 @@
-
 /*******************************************************************
  * Sync a local WebSQL DB (SQLite) with a server.
  * Thanks to Lee Barney and QuickConnect for his inspiration
@@ -129,7 +128,7 @@ DBSYNC = {
 					self.syncResult.codeStr = 'syncOk';
 					self.syncResult.message = 'Data synchronized successfuly. ('+self.syncResult.nbSent+
 						' new/modified element saved, '+self.syncResult.nbUpdated+' updated)';
-
+					self.syncResult.serverAnswer = serverData;//include the original server answer, just in case
 					self.cbEndSync(self.syncResult);
 				});
 			});
