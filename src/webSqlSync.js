@@ -24,7 +24,17 @@
 
  */
 
-DBSYNC = {
+(function (root, factory) {
+	if (typeof define === 'function' && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(factory);
+	} else {
+		// Browser globals
+		root.DBSYNC = factory();
+	}
+}(this, function () {
+
+var DBSYNC = {
 	serverUrl: null,
 	db: null,
 	tablesToSync: [],//eg.  [{tableName : 'myDbTable', idName : 'myTable_id'},{tableName : 'stat'}]
@@ -67,10 +77,10 @@ DBSYNC = {
 			for (i = 0; i < self.tablesToSync.length; i++) {
 				var curr = self.tablesToSync[i];
 				self._executeSql('CREATE TRIGGER IF NOT EXISTS update_' + curr.tableName + '  AFTER UPDATE ON ' + curr.tableName + ' ' +
-			  			'BEGIN INSERT INTO new_elem (table_name, id) VALUES ("' + curr.tableName + '", new.' + curr.idName + '); END;', [], transaction);
+						'BEGIN INSERT INTO new_elem (table_name, id) VALUES ("' + curr.tableName + '", new.' + curr.idName + '); END;', [], transaction);
 
 				self._executeSql('CREATE TRIGGER IF NOT EXISTS insert_' + curr.tableName + '  AFTER INSERT ON ' + curr.tableName + ' ' +
-			  			'BEGIN INSERT INTO new_elem (table_name, id) VALUES ("' + curr.tableName + '", new.' + curr.idName + '); END;', [], transaction);
+						'BEGIN INSERT INTO new_elem (table_name, id) VALUES ("' + curr.tableName + '", new.' + curr.idName + '); END;', [], transaction);
 				//TODO the DELETE is not handled. But it's not a pb if you do a logic delete (ex. update set state="DELETED")
 			}
 		});//end tx
@@ -337,9 +347,9 @@ DBSYNC = {
 
 	_selectSql: function(sql, optionalTransaction, callBack) {
 		var self = this;
-        self._executeSql(sql, [], optionalTransaction, function(tx, rs) {
+		self._executeSql(sql, [], optionalTransaction, function(tx, rs) {
 		callBack(self._transformRs(rs));
-        }, self._errorHandler);
+		}, self._errorHandler);
 	},
 	_transformRs: function(rs) {
 		var elms = [];
@@ -397,9 +407,9 @@ DBSYNC = {
 		//DBSYNC.log('SQL Query executed. insertId: '+results.insertId+' rows.length '+results.rows.length);
 	},
 
-    _errorHandler: function(transaction, error) {
+	_errorHandler: function(transaction, error) {
 		DBSYNC.error('Error : ' + error.message + ' (Code ' + error.code + ') Transaction.sql = ' + transaction.sql);
-    },
+	},
 
 
 	_buildInsertSQL: function(tableName, objToInsert) {
@@ -484,3 +494,7 @@ DBSYNC = {
 		return result;
 	}
 };
+
+return DBSYNC;
+
+}));
