@@ -33,7 +33,6 @@ DBSYNC = {
 	lastSyncDate: 0,
 	firstSync: false,
 	cbEndSync: null,
-	postVarName: 'DBSYNC', // data will send to server via post with this name
 
 	/*************** PUBLIC FUNCTIONS ********************/
 	/**
@@ -196,7 +195,7 @@ DBSYNC = {
 		self.log(dataToSync);
 
 		var XHR = new window.XMLHttpRequest(),
-				data = self.postVarName + '=' + JSON.stringify(dataToSync);
+				data = JSON.stringify(dataToSync);
 		XHR.overrideMimeType = 'application/json;charset=UTF-8';
 		XHR.open("POST", self.serverUrl, true);
 		XHR.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
