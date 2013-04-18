@@ -33,6 +33,7 @@ DBSYNC = {
 	lastSyncDate: 0,
 	firstSync: false,
 	cbEndSync: null,
+	postVarName: 'DBSYNC', // data will send to server via post with this name
 
 	/*************** PUBLIC FUNCTIONS ********************/
 	/**
@@ -194,31 +195,35 @@ DBSYNC = {
 		self.log('About to send ' + dataToSync.info.nbDataToBackup + ' elements to the server ' + self.serverUrl);
 		self.log(dataToSync);
 
-        jQuery.ajax({
-            url: self.serverUrl,
-            type: 'POST',
-            data: JSON.stringify(dataToSync),
-            dataType: 'json',
-            beforeSend: function(x) {
-                if (x && x.overrideMimeType) {
-                    x.overrideMimeType('application/j-son;charset=UTF-8');
-                }
-            },
-			//Deprecation Notice: The jqXHR.success(), jqXHR.error(), and jqXHR.complete() callbacks will be deprecated in jQuery 1.8.
-			//To prepare your code for their eventual removal, use jqXHR.done(), jqXHR.fail(), and jqXHR.always() instead.
-			complete: function(serverAnswer) {
+		var XHR = new window.XMLHttpRequest(),
+				data = self.postVarName + '=' + JSON.stringify(dataToSync);
+		XHR.overrideMimeType = 'application/json;charset=UTF-8';
+		XHR.open("POST", self.serverUrl, true);
+		XHR.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		XHR.onreadystatechange = function () {
+			var serverAnswer;
+			if(4 === XHR.readyState) {
+				try {
+					serverAnswer = JSON.parse(XHR.responseText);
+				} catch(e) {
+					serverAnswer = XHR.responseText;
+				}
 				self.log('Server answered: ');
-	            self.log(serverAnswer);
-			},
-            success: function(serverAnswer) {
-	            callBack(serverAnswer);
-            },
-			error: function(serverAnswer) {
-				serverAnswer.result = 'ERROR';
-				serverAnswer.message = serverAnswer.statusText;
-				callBack(serverAnswer);
+				self.log(serverAnswer);
+				//I want only json/object as response
+				if(XHR.status == 200 && serverAnswer instanceof Object) {
+					callBack(serverAnswer);
+				} else {
+					serverAnswer.result = 'ERROR';
+					serverAnswer.status = XHR.status;
+					serverAnswer.message = XHR.statusText;
+					callBack(serverAnswer);
+				}
 			}
-        });
+		};
+
+		XHR.send(data);
+
 	},
 
 	_updateLocalDb: function(serverData, callBack) {
