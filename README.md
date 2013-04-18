@@ -54,7 +54,7 @@ Where callBackSyncProgress is a function called at every step of the synchroniza
 
 Client / server communication
 =============
-Currently, there is no generic server code, but you can find an example of a Java server code in the directory test/.
+Currently, there is no generic server code (contribution are welcome), but you can find an example of a Java server code in the directory test/.
 
 You can also run the QUnit test to understand the communication between the client (web app) and the server. 
 
@@ -120,6 +120,6 @@ I hope it will help you to implement your own server logic, or provide an exampl
 ## Limitations:
 
  - DELETE are not handled. But an easy workaround is to do a logic delete with an update (ex. UPDATE elm SET flag='DELETED')
- - There are no example of generic server side sync for now. But there is our server code as an example in Java with #playframework (but it's not a generic code). Check the test/ directory
+ - There are no example of generic server side sync for now. But there is our server code as an example in Java with #playframework (but it's not a generic code). Check the test/ directory. Contribution for a PHP or Node.js server code are welcome!!
  - Need to add even more JQunit test cases. But this code is working on more than 18 apps (iOS/Android) in production, with millions of db rows synchronized
- - ~~There is one dependency to JQuery (used only to send data with AJAX, look for jQuery.ajax). I welcome any pull request to remove this dependency~~
+ - ~~There is one dependency to JQuery (used only to send data with AJAX, look for jQuery.ajax). I welcome any pull request to remove this dependency~~ DONE, thank you Takeno
