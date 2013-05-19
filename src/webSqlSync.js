@@ -417,6 +417,13 @@ var DBSYNC = {
 		if (members.length === 0) {
 			throw 'buildInsertSQL : Error, try to insert an empty object in the table ' + tableName;
 		}
+		
+		// Quote out column names so reserved words like 'order' don't break things. 
+		for(var i = 0; i < members.length; i++)
+		{
+			members[i] = "'" + members[i] + "'";
+		}
+		
 		//build INSERT INTO myTable (attName1, attName2) VALUES (?, ?) -> need to pass the values in parameters
 		var sql = 'INSERT INTO ' + tableName + ' (';
 		sql += this._arrayToString(members, ',');
