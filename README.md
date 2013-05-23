@@ -1,6 +1,7 @@
-WebSqlSync
+WebSqlSync 
 =====================
-Automatically synchronize a local WebSql database (SQLite in the navigator) to a server :
+Automatically synchronize a local WebSql database (SQLite of the browser) with a server:
+------------------
 
  - 2 way sync : client <-> server
  - Incremental synchronization (send only the necessary data)
@@ -14,7 +15,7 @@ Very easy to integrate and to use (2 functions to call : initSync and syncNow), 
 Installing
 ==========
 
- - just copy the webSqlSync.js file in your project and include it in your html :
+ - just copy the src/webSqlSync.js file in your project and include it in your html :
  
         script src="lib/webSqlSync.js" type="application/x-javascript" charset="utf-8">/script>"
 
