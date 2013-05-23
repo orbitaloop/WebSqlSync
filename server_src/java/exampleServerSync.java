@@ -16,9 +16,9 @@ import java.util.List;
 import com.google.gson.Gson;
   
 /**
- *  Server-side application sync
+ *  Server-side application sync code sample (with playframework 1.2.X)
  *  1. Receive a JSON with the data to save (POST request)
- *  2. Update the MySql DB on the server with the changes in the received JSON
+ *  2. Update the SQL DB on the server with the changes in the received JSON
  *  3. Send (as an answer to the POST) the modified data since the "last_sync" to the client
  */
 public class AppSync extends Controller {
