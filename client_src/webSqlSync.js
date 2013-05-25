@@ -251,12 +251,7 @@ var DBSYNC = {
 			return;
 		}
 		if (typeof serverData.data === 'undefined' || serverData.data.length === 0) {
-			//nothing to update
-			self.db.transaction(function(tx) {
-				//We only use the server date to avoid dealing with wrong date from the client
-				self._finishSync(serverData.syncDate, tx, callBack(0));
-			});
-			return;
+			throw "Error, the server should always return a result";
 		}
 		self.db.transaction(function(tx) {
 			var counterNbTable = 0, nbTables = self.tablesToSync.length;
