@@ -191,9 +191,9 @@ var DBSYNC = {
 	_getDataToSave: function(tableName, idName, needAllData, tx, dataCallBack) {
 		var self = this, sql = '';
 		if (needAllData) {
-			sql = 'SELECT * FROM ' + tableName;
+			sql = "SELECT * FROM " + tableName;
 		} else {
-			sql = 'SELECT * FROM ' + tableName + ' WHERE ' + idName + ' IN (SELECT DISTINCT id FROM new_elem WHERE table_name="' + tableName + '")';
+			sql = "SELECT * FROM " + tableName + " WHERE " + idName + " IN (SELECT DISTINCT id FROM new_elem WHERE table_name='" + tableName + "')";
 		}
 		self._selectSql(sql, tx, dataCallBack);
 	},
