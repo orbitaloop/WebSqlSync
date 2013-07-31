@@ -1,9 +1,8 @@
 /*******************************************************************
- * Sync a local WebSQL DB (SQLite) with a server.
- * Thanks to Lee Barney and QuickConnect for his inspiration
+ * Synchronize a local WebSQL DB (SQLite) with a server.
  ******************************************************************/
 /*
- Copyright (c) 2012, Samuel Michelot
+ Copyright (c) 2012, Samuel Michelot * Thanks to Lee Barney and QuickConnect for his inspiration
  Permission is hereby granted, free of charge, to any person obtaining a
  copy of this software and associated documentation files (the "Software"),
  to deal in the Software without restriction, including without limitation the
