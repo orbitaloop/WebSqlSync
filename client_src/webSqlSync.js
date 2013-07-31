@@ -223,9 +223,11 @@ var DBSYNC = {
 				if(XHR.status == 200 && serverAnswer instanceof Object) {
 					callBack(serverAnswer);
 				} else {
-					serverAnswer.result = 'ERROR';
-					serverAnswer.status = XHR.status;
-					serverAnswer.message = XHR.statusText;
+					serverAnswer = {
+						result : 'ERROR',
+			                        status : XHR.status,
+			                        message : XHR.statusText
+					};
 					callBack(serverAnswer);
 				}
 			}
