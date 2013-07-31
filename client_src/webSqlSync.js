@@ -153,10 +153,10 @@ var DBSYNC = {
 		console.error(message);
 	},
 	/* resetSyncDate : Usefull to synchronize again all the local db content */
-	resetSyncDate: function() {
-		this.syncInfo.lastSyncDate = 0;
-		this.firstSync = true;
-		this._executeSql('UPDATE sync_info SET last_sync = "0"', []);
+    	resetSyncDate: function(val) {
+	        this.syncInfo.lastSyncDate = typeof val === "undefined" ? 0 : val;
+	        this.firstSync = true;
+	        this._executeSql('UPDATE sync_info SET last_sync = "'+this.syncInfo.lastSyncDate+'"', []);
 	},
 	/*************** PRIVATE FUNCTIONS ********************/
 
