@@ -152,10 +152,15 @@ var DBSYNC = {
 	error: function(message) {
 		console.error(message);
 	},
-	/* resetSyncDate : Usefull to synchronize again all the local db content */
-    	resetSyncDate: function(val) {
-	        this.syncInfo.lastSyncDate = typeof val === "undefined" ? 0 : val;
+	// Usefull to tell the server to resend all the data from a particular Date (val = 1 : the server will send all his data)
+    	setSyncDate: function(val) {
+	        this.syncInfo.lastSyncDate = val;
+	        this._executeSql('UPDATE sync_info SET last_sync = "'+this.syncInfo.lastSyncDate+'"', []);
+	},
+	//Useful to tell the client to send all his data again (like the firstSync)
+	setFirstSync: function() {
 	        this.firstSync = true;
+	        this.syncInfo.lastSyncDate = 0;
 	        this._executeSql('UPDATE sync_info SET last_sync = "'+this.syncInfo.lastSyncDate+'"', []);
 	},
 	/*************** PRIVATE FUNCTIONS ********************/
