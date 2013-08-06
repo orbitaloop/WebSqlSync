@@ -56,9 +56,10 @@ Where callBackSyncProgress is a function called at every step of the synchroniza
 
 Client / server communication
 =============
-Currently, there is no generic server code (contribution are welcome), but you can find  example server code (in php & java) in the directory server_src_/.
+Currently, there is no generic server code (contribution are welcome), but you can find  example server code (in php & java) in the directory server_src_/. 
+Or you can checkout this cool sample project : https://github.com/abeauseigle/webSqlApp (a CRUD made by @abeauseigle with WebSQLSync, and PHP/MySQL for the server part).
 
-You can also run the QUnit test to understand the communication between the client (web app) and the server. 
+You can also run the QUnit test to understand the communication between the client (web app) and the server and eventually test your implementation of the server.
 
 Here is a scenario to show an example of input / output data between the client and the server:
 
