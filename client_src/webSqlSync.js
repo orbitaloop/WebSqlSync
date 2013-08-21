@@ -38,9 +38,10 @@ var DBSYNC = {
     serverUrl: null,
     db: null,
     tablesToSync: [],//eg.  [{tableName : 'myDbTable', idName : 'myTable_id'},{tableName : 'stat'}]
-    syncInfo: null,//ex. {deviceId : "XXXX", email : "fake@g.com"}
+    syncInfo: {//this object can have other useful info for the server ex. {deviceId : "XXXX", email : "fake@g.com"}
+        lastSyncDate : null// attribute managed by webSqlSync
+    },
     syncResult: null,
-    lastSyncDate: 0,
     firstSync: false,
     cbEndSync: null,
 
@@ -89,15 +90,13 @@ var DBSYNC = {
             if (res.length === 0 || res[0] == 0) {//First sync (or data lost)
                 self._executeSql('INSERT OR REPLACE INTO sync_info (last_sync) VALUES (0)', []);
                 self.firstSync = true;
-                self.lastSyncDate = 0;
-                self.syncInfo.lastSyncDate = self.lastSyncDate;
+                self.syncInfo.lastSyncDate = 0;
                 callBack(true);
             } else {
-                self.lastSyncDate = res[0].last_sync;
-                if (self.lastSyncDate === 0) {
+                self.syncInfo.lastSyncDate = res[0].last_sync;
+                if (self.syncInfo.lastSyncDate === 0) {
                     self.firstSync = true;
                 }
-                self.syncInfo.lastSyncDate = self.lastSyncDate;
                 callBack(false);
             }
         });
@@ -162,6 +161,9 @@ var DBSYNC = {
     },
     error: function(message) {
         console.error(message);
+    },
+    getLastSyncDate : function() {
+        return this.syncInfo.lastSyncDate;
     },
     // Usefull to tell the server to resend all the data from a particular Date (val = 1 : the server will send all his data)
     setSyncDate: function(val) {
@@ -350,9 +352,8 @@ var DBSYNC = {
     },
     _finishSync: function(syncDate, tx, callBack) {
         this.firstSync = false;
-        this.lastSyncDate = syncDate;
-        this.syncInfo.lastSyncDate = this.lastSyncDate;
-        this._executeSql('UPDATE sync_info SET last_sync = "' + this.lastSyncDate + '"', [], tx);
+        this.syncInfo.lastSyncDate = syncDate;
+        this._executeSql('UPDATE sync_info SET last_sync = "' + syncDate + '"', [], tx);
         this._executeSql('DELETE FROM new_elem', [], tx);
         callBack();
     },
@@ -394,28 +395,10 @@ var DBSYNC = {
     },
     _executeSqlBridge: function(tx, sql, params, dataHandler, errorHandler) {
         var self = this;
-        if (typeof self.db.dbPath !== 'undefined') {
-            //Native SQLite DB with phonegap : https://github.com/davibe/Phonegap-SQLitePlugin/
-            //this is a native DB, the method signature is different:
 
-            var sqlAndParams = [sql].concat(params);
+        //Standard WebSQL
+        tx.executeSql(sql, params, dataHandler, errorHandler);
 
-            var cb = function(res) {
-                //in WebSQL : result.rows.item(0)
-                //in the phonegap plugin : res.rows[0]
-                res.rows.item = function(i) {
-                    return this[i];
-                };
-
-                //the result callback hasn't the tx param
-                dataHandler(tx, res);
-            };
-
-            tx.executeSql(sqlAndParams, cb, errorHandler);
-        } else {
-            //Standard WebSQL
-            tx.executeSql(sql, params, dataHandler, errorHandler);
-        }
     },
 
     _defaultCallBack: function(transaction, results) {
@@ -425,7 +408,6 @@ var DBSYNC = {
     _errorHandler: function(transaction, error) {
         DBSYNC.error('Error : ' + error.message + ' (Code ' + error.code + ') Transaction.sql = ' + transaction.sql);
     },
-
 
     _buildInsertSQL: function(tableName, objToInsert) {
         var members = this._getAttributesList(objToInsert);

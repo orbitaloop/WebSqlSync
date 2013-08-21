@@ -8,6 +8,7 @@ Automatically synchronize a local WebSql database (SQLite of the browser) with a
  - Works offline. All data changes are tracked and synchronized with the server once the connection returns
  - Support for replicating changes to multiple devices
  - works with any JS web app or phonegap app (iOS, Android, etc.), without changing your code
+ - only 8kb (5kb gziped)
  - MIT licence
 
 Very easy to integrate and to use (2 functions to call : initSync and syncNow), non intrusive with your existing code.
