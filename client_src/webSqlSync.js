@@ -3,7 +3,7 @@
  * Thanks to Lee Barney and QuickConnect for his inspiration
  ******************************************************************/
 /*
- Copyright (c) 2012, Samuel Michelot,  MosaCrea Ltd
+ Copyright (c) 2012, Samuel Michelot,  MosaLingua.com, MosaCrea Ltd
  Permission is hereby granted, free of charge, to any person obtaining a
  copy of this software and associated documentation files (the "Software"),
  to deal in the Software without restriction, including without limitation the
