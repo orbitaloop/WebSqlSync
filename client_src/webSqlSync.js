@@ -3,7 +3,7 @@
  * Thanks to Lee Barney and QuickConnect for his inspiration
  ******************************************************************/
 /*
- Copyright (c) 2012, Samuel Michelot,  MosaLingua.com, MosaCrea Ltd
+ Copyright (c) 2012, Samuel Michelot,  MosaCrea Ltd
  Permission is hereby granted, free of charge, to any person obtaining a
  copy of this software and associated documentation files (the "Software"),
  to deal in the Software without restriction, including without limitation the
@@ -38,12 +38,15 @@ var DBSYNC = {
     serverUrl: null,
     db: null,
     tablesToSync: [],//eg.  [{tableName : 'myDbTable', idName : 'myTable_id'},{tableName : 'stat'}]
+    idNameFromTableName : {}, //map to get the idName with the tableName (key)
     syncInfo: {//this object can have other useful info for the server ex. {deviceId : "XXXX", email : "fake@g.com"}
         lastSyncDate : null// attribute managed by webSqlSync
     },
     syncResult: null,
     firstSync: false,
     cbEndSync: null,
+    clientData: null,
+    serverData: null,
 
     /*************** PUBLIC FUNCTIONS ********************/
     /**
@@ -66,6 +69,7 @@ var DBSYNC = {
             if (typeof self.tablesToSync[i].idName === 'undefined') {
                 self.tablesToSync[i].idName = 'id';//if not specified, the default name is 'id'
             }
+            self.idNameFromTableName[self.tablesToSync[i].tableName] = self.tablesToSync[i].idName;
         }
 
         self.db.transaction(function(transaction) {
@@ -100,7 +104,6 @@ var DBSYNC = {
                 callBack(false);
             }
         });
-        
     },
 
     /**
@@ -125,7 +128,7 @@ var DBSYNC = {
         callBackProgress('Getting local data to backup', 0, 'getData');
 
         self._getDataToBackup(function(data) {
-
+            self.clientData = data;
             if (saveBandwidth && self.syncResult.nbSent === 0) {
                 self.syncResult.localDataUpdated = false;
                 self.syncResult.syncOK = true;
@@ -254,9 +257,9 @@ var DBSYNC = {
 
     _updateLocalDb: function(serverData, callBack) {
         var self = this;
+        self.serverData = serverData;
 
         if (!serverData || serverData.result === 'ERROR') {
-            //throw "No answer from the  server"; //doesn't work in asynchronous
             self.syncResult.syncOK = false;
             self.syncResult.codeStr = 'syncKoServer';
             if (serverData) {
@@ -329,7 +332,7 @@ var DBSYNC = {
         });//end tx
     },
     /** return the listIdToCheck curated from the id that doesn't exist in tableName and idName
-     * (used in the DBSync class to know if we need to insert new elem or just update
+     * (used in the DBSync class to know if we need to insert new elem or just update)
      * @param {Object} tableName : card_stat.
      * @param {Object} idName : ex. card_id.
      * @param {Object} listIdToCheck : ex. [10000, 10010].
@@ -351,11 +354,42 @@ var DBSYNC = {
         });
     },
     _finishSync: function(syncDate, tx, callBack) {
+        var self = this, tableName, idsToDelete, idName, i, idValue, idsString;
         this.firstSync = false;
         this.syncInfo.lastSyncDate = syncDate;
         this._executeSql('UPDATE sync_info SET last_sync = "' + syncDate + '"', [], tx);
-        this._executeSql('DELETE FROM new_elem', [], tx);
+
+        // Remove only the elem sent to the server (in case new_elem has been added during the sync)
+        // We don't do that anymore: this._executeSql('DELETE FROM new_elem', [], tx);
+        for (tableName in self.clientData.data) {
+            idsToDelete = new Array();
+            idName =  self.idNameFromTableName[tableName];
+            for (i=0; i < self.clientData.data[tableName].length; i++) {
+                idValue = self.clientData.data[tableName][i][idName];
+                idsToDelete.push('"'+idValue+'"');
+            }
+            if (idsToDelete.length > 0) {
+                idsString = self._arrayToString(idsToDelete, ',');
+                self._executeSql('DELETE FROM new_elem WHERE table_name = "'+tableName+'" AND id IN ('+idsString+')', [], tx);
+            }
+        }
+        // Remove elems received from the server that has triggered the SQL TRIGGERS, to avoid to send it again to the server and create a loop
+        for (tableName in self.serverData.data) {
+            idsToDelete = new Array();
+            idName =  self.idNameFromTableName[tableName];
+            for (i=0; i < self.serverData.data[tableName].length; i++) {
+                idValue = self.serverData.data[tableName][i][idName];
+                idsToDelete.push('"'+idValue+'"');
+            }
+            if (idsToDelete.length > 0) {
+                idsString = self._arrayToString(idsToDelete, ',');
+                self._executeSql('DELETE FROM new_elem WHERE table_name = "'+tableName+'" AND id IN ('+idsString+')', [], tx);
+            }
+        }
+
         callBack();
+        self.clientData = null;
+        self.serverData = null;
     },
 
 
