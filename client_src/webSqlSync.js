@@ -3,7 +3,7 @@
  * Thanks to Lee Barney and QuickConnect for his inspiration
  ******************************************************************/
 /*
- Copyright (c) 2012, Samuel Michelot,  MosaCrea Ltd
+ Copyright (c) 2012, Samuel Michelot,  MosaLingua.com, MosaCrea Ltd
  Permission is hereby granted, free of charge, to any person obtaining a
  copy of this software and associated documentation files (the "Software"),
  to deal in the Software without restriction, including without limitation the
@@ -38,14 +38,12 @@ var DBSYNC = {
     serverUrl: null,
     db: null,
     tablesToSync: [],//eg.  [{tableName : 'myDbTable', idName : 'myTable_id'},{tableName : 'stat'}]
-    idNameFromTableName : {}, //map to get the idName with the tableName (key)
     syncInfo: {//this object can have other useful info for the server ex. {deviceId : "XXXX", email : "fake@g.com"}
         lastSyncDate : null// attribute managed by webSqlSync
     },
     syncResult: null,
     firstSync: false,
     cbEndSync: null,
-    clientData: null,
 
     /*************** PUBLIC FUNCTIONS ********************/
     /**
@@ -68,7 +66,6 @@ var DBSYNC = {
             if (typeof self.tablesToSync[i].idName === 'undefined') {
                 self.tablesToSync[i].idName = 'id';//if not specified, the default name is 'id'
             }
-            self.idNameFromTableName[self.tablesToSync[i].tableName] = self.tablesToSync[i].idName;
         }
 
         self.db.transaction(function(transaction) {
@@ -103,6 +100,7 @@ var DBSYNC = {
                 callBack(false);
             }
         });
+        
     },
 
     /**
@@ -127,7 +125,7 @@ var DBSYNC = {
         callBackProgress('Getting local data to backup', 0, 'getData');
 
         self._getDataToBackup(function(data) {
-            self.clientData = data;
+
             if (saveBandwidth && self.syncResult.nbSent === 0) {
                 self.syncResult.localDataUpdated = false;
                 self.syncResult.syncOK = true;
@@ -353,26 +351,11 @@ var DBSYNC = {
         });
     },
     _finishSync: function(syncDate, tx, callBack) {
-        var self = this;
         this.firstSync = false;
         this.syncInfo.lastSyncDate = syncDate;
         this._executeSql('UPDATE sync_info SET last_sync = "' + syncDate + '"', [], tx);
-        // Remove only the elem read before (in case new elem has been added after the beginning of the sync)
-        // We don't do that anymore: this._executeSql('DELETE FROM new_elem', [], tx);
-        for (var tableName in self.clientData.data) {
-            var idsToDelete = new Array();
-            var idName =  self.idNameFromTableName[tableName];
-            for (var i=0; i < self.clientData.data[tableName].length; i++) {
-                var idValue=self.clientData.data[tableName][i][idName];
-                idsToDelete.push('"'+idValue+'"');
-            }
-            if (idsToDelete.length>0) {
-                var idsString = self._arrayToString(idsToDelete, ',');
-                self._executeSql('DELETE FROM new_elem WHERE table_name = "'+tableName+'" AND id IN ('+idsString+')', [], tx);
-            }
-        }
+        this._executeSql('DELETE FROM new_elem', [], tx);
         callBack();
-        self.clientData = null;
     },
 
 
