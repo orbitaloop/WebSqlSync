@@ -65,15 +65,15 @@ You can also run the QUnit test to understand the communication between the clie
 Here is a scenario to show an example of input / output data between the client and the server:
 
 ## client output :
-It's always the client who initiate the synchronization. So, let's say, in the client app (ex. mobile app), WebSqlSync has detected that 2 rows of the table "card_stat" has been modified (or created). So when the syncNow method is called, it will send to the server the following JSON:
+It's always the client who initiate the synchronization. So, let's say, in the client app (ex. mobile app), WebSqlSync has detected that 2 rows of the table "card_stat" has been modified (or created). So when the syncNow method is called, WebSqlSync will send to the server the following JSON:
 
 	clientData: {
-	    "info": {/* the info to identify the user. It's the obect "sync_info" in parameter of the initSync method. You can put everything you need to identify the client */
+	    "info": {/* the info to identify the user. It's the obect "sync_info" passed previously in the parameters of the initSync method. You can put everything you need to identify the client */
 	        "userEmail": "testSafari2@gmail.com",
 	        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/534.52.7 (KHTML, like Gecko) Version/5.1.2 Safari/534.52.7",
 	        "lastSyncDate": 1326553035406,/* added automatically by WebSqlSync*/
 	    },
-	    "data": {/* WebSQL detect the 2 modified objects and send them. If there is no change on the client, data will be empty */
+	    "data": {/* WebSQLSync detect the 2 modified objects and send them. If there is no change on the client, data will be empty */
 	        "card_stat": [{
 	            "card_id": 100330,
 	            "firstViewTime": 1326845243.743,
@@ -91,9 +91,10 @@ It's always the client who initiate the synchronization. So, let's say, in the c
 
 ## server output :
 The server receives the previous client data, and should save it in a DB (INSERT OR REPLACE). 
-The DB schema on the server side should be nearly identical as the client DB, except that you should add the following columns (at least):
+The DB schema on the server side should be nearly identical as the client DB, except that you should add the following columns (at least) for each table to synchronize:
  - client_id (ex. email address like in this example, in order to identify the client, because the table on the server side will have all the data of the different clients)
  - last_sync_date with the current date (now). All the sync dates are managed in the server side in order to avoid problems with time zone or clients with wrong date.
+ - table_server_id : a unique ID on the server table (autoincremented ID). Of course, it will be different of the client table ID, because the server manage several clients.
 
 Once the server has saved the client data, it should look if there is more recent data to send to the client. 
 To do that, it will use the clientData.lastSyncDate he just received and compare to the server column 'last_sync_date' 
@@ -124,6 +125,6 @@ I hope it will help you to implement your own server logic, or provide an exampl
 ## Limitations:
 
  - DELETE are not handled. But an easy workaround is to do a logic delete with an update (ex. UPDATE elm SET flag='DELETED')
- - There are no example of generic server side sync for now. But there are some examples of server code in different languages (but you will need to adapt it to your needs). Check the server_src_/ directory. Contribution of server code are welcome (generic or not)!!
- - Need to add even more JQunit test cases. But this code is working on more than 18 apps (iOS/Android) in production, with millions of db rows synchronized
+ - There are no example of generic server side sync for now. But there are some examples of server code in different languages (but you will need to adapt it to your needs). Check the server_src_/ directory. And there is this cool and complete example of CRUD project: https://github.com/abeauseigle/webSqlApp  Contribution of server code are welcome (generic or not)!!
+ - Need to add even more JQunit test cases. But this code is working on more than 25 apps (iOS/Android) in production, with millions of db rows synchronized
  - ~~There is one dependency to JQuery (used only to send data with AJAX, look for jQuery.ajax). I welcome any pull request to remove this dependency~~ DONE, thank you Takeno
