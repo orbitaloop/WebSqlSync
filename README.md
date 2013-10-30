@@ -7,6 +7,7 @@ Automatically synchronize a local WebSql database (SQLite of the browser) with a
  - Incremental synchronization (send only the necessary data)
  - Works offline. All data changes are tracked and synchronized with the server once the connection returns
  - Support for replicating changes to multiple devices
+ - Support for Basic Authentication
  - works with any JS web app or phonegap app (iOS, Android, etc.), without changing your code
  - only 4kb gziped (and no dependencies)
  - MIT licence
@@ -30,6 +31,10 @@ You need to initialize the lib (at each startup for example).
 It will automatically create 2 tables (if they don't already exists). The table new_elem is used to store all the new or modified elements and the table sync_info is used to store the date of the last sync. It will also create SQLite triggers in order to watch the INSERT or UPDATE on the tables you want to synchronize (to automatically insert the modified elements in the new_elem table):
 
     DBSYNC.initSync(TABLES_TO_SYNC, webSqlDb, sync_info, 'http://www.myserver.com', callBackEndInit);
+    
+or when your server requires Basic Authentication, provide username/password
+    
+    DBSYNC.initSync(TABLES_TO_SYNC, webSqlDb, sync_info, 'http://www.myserver.com', callBackEndInit, 'username','password');
 
 Where TABLES_TO_SYNC is the list of DB table that you want to sync with the server, ex :
 
