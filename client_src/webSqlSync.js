@@ -109,10 +109,12 @@ var DBSYNC = {
     /**
      *
      * @param {function} callBackProgress
+     * @param {function} callBackUploadProgress
+     * @param {function} callBackDownloadProgress
      * @param {function} callBackEndSync (result.syncOK, result.message).
      * @param {boolean} saveBandwidth (default false): if true, the client will not send a request to the server if there is no local changes
      */
-    syncNow: function(callBackProgress, callBackEndSync, saveBandwidth) {
+    syncNow: function(callBackProgress, callBackUploadProgress, callBackDownloadProgress, callBackEndSync, saveBandwidth) {
         var self = this;
         if (this.db === null) {
             throw 'You should call the initSync before (db is null)';
@@ -140,7 +142,7 @@ var DBSYNC = {
 
             callBackProgress('Sending ' + self.syncResult.nbSent + ' elements to the server', 20, 'sendData');
 
-            self._sendDataToServer(data, function(serverData) {
+            self._sendDataToServer(data, callBackUploadProgress, callBackDownloadProgress, function(serverData) {
 
                 callBackProgress('Updating local data', 70, 'updateData');
 
@@ -229,7 +231,7 @@ var DBSYNC = {
     },
 
 
-    _sendDataToServer: function(dataToSync, callBack) {
+    _sendDataToServer: function(dataToSync, uploadProgressCallBack, downloadProgressCallBack, finishCallBack) {
         var self = this;
 
         var XHR = new window.XMLHttpRequest(),
@@ -237,6 +239,8 @@ var DBSYNC = {
         XHR.overrideMimeType = 'application/json;charset=UTF-8';
         XHR.open("POST", self.serverUrl, true);
         XHR.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        XHR.upload.addEventListener("progress", uploadProgressCallBack, false);
+        XHR.addEventListener("progress", downloadProgressCallBack, false);
         XHR.onreadystatechange = function () {
             var serverAnswer;
             if(4 === XHR.readyState) {
@@ -249,14 +253,14 @@ var DBSYNC = {
                 self.log(serverAnswer);
                 //I want only json/object as response
                 if(XHR.status == 200 && serverAnswer instanceof Object) {
-                    callBack(serverAnswer);
+                    finishCallBack(serverAnswer);
                 } else {
                     serverAnswer = {
                         result : 'ERROR',
                         status : XHR.status,
                         message : XHR.statusText
                     };
-                    callBack(serverAnswer);
+                    finishCallBack(serverAnswer);
                 }
             }
         };
