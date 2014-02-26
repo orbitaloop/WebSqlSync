@@ -109,12 +109,10 @@ var DBSYNC = {
     /**
      *
      * @param {function} callBackProgress
-     * @param {function} callBackUploadProgress
-     * @param {function} callBackDownloadProgress
-     * @param {function} callBackEndSync (result.syncOK, result.message).
+     * @param {function} callBackEnd (result.syncOK, result.message).
      * @param {boolean} saveBandwidth (default false): if true, the client will not send a request to the server if there is no local changes
      */
-    syncNow: function(callBackProgress, callBackUploadProgress, callBackDownloadProgress, callBackEndSync, saveBandwidth) {
+    syncNow: function(callBackProgress, callBackEndSync, saveBandwidth) {
         var self = this;
         if (this.db === null) {
             throw 'You should call the initSync before (db is null)';
@@ -142,19 +140,11 @@ var DBSYNC = {
 
             callBackProgress('Sending ' + self.syncResult.nbSent + ' elements to the server', 20, 'sendData');
 
-            self._sendDataToServer(data, callBackUploadProgress, callBackDownloadProgress, function(serverData) {
+            self._sendDataToServer(data, function(serverData) {
 
                 callBackProgress('Updating local data', 70, 'updateData');
 
-                self._updateLocalDb(serverData, function(sqlerror) {
-                    self.syncResult.syncOK = false;
-                    self.syncResult.codeStr = 'syncError';
-                    self.syncResult.message = 'Error executing SQL transaction' + sqlerror;
-                    self.syncResult.serverAnswer = serverData;//include the original server answer, just in case
-                    self.cbEndSync(self.syncResult);
-                    self.serverData = null;
-                    self.clientData = null;
-                }, function() {
+                self._updateLocalDb(serverData, function() {
                     self.syncResult.localDataUpdated = self.syncResult.nbUpdated > 0;
                     self.syncResult.syncOK = true;
                     self.syncResult.codeStr = 'syncOk';
@@ -162,8 +152,6 @@ var DBSYNC = {
                         ' new/modified element saved, '+self.syncResult.nbUpdated+' updated)';
                     self.syncResult.serverAnswer = serverData;//include the original server answer, just in case
                     self.cbEndSync(self.syncResult);
-                    self.serverData = null;
-                    self.clientData = null;
                 });
             });
         });
@@ -231,7 +219,7 @@ var DBSYNC = {
     },
 
 
-    _sendDataToServer: function(dataToSync, uploadProgressCallBack, downloadProgressCallBack, finishCallBack) {
+    _sendDataToServer: function(dataToSync, callBack) {
         var self = this;
 
         var XHR = new window.XMLHttpRequest(),
@@ -239,9 +227,6 @@ var DBSYNC = {
         XHR.overrideMimeType = 'application/json;charset=UTF-8';
         XHR.open("POST", self.serverUrl, true);
         XHR.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        XHR.setRequestHeader("Accept-Encoding", "gzip, deflate");
-        XHR.upload.addEventListener("progress", uploadProgressCallBack, false);
-        XHR.addEventListener("progress", downloadProgressCallBack, false);
         XHR.onreadystatechange = function () {
             var serverAnswer;
             if(4 === XHR.readyState) {
@@ -254,14 +239,14 @@ var DBSYNC = {
                 self.log(serverAnswer);
                 //I want only json/object as response
                 if(XHR.status == 200 && serverAnswer instanceof Object) {
-                    finishCallBack(serverAnswer);
+                    callBack(serverAnswer);
                 } else {
                     serverAnswer = {
                         result : 'ERROR',
                         status : XHR.status,
                         message : XHR.statusText
                     };
-                    finishCallBack(serverAnswer);
+                    callBack(serverAnswer);
                 }
             }
         };
@@ -270,7 +255,7 @@ var DBSYNC = {
 
     },
 
-    _updateLocalDb: function(serverData, cbTransactionError, cbTransactionSuccess) {
+    _updateLocalDb: function(serverData, callBack) {
         var self = this;
         self.serverData = serverData;
 
@@ -289,10 +274,8 @@ var DBSYNC = {
             //nothing to update
             self.db.transaction(function(tx) {
                 //We only use the server date to avoid dealing with wrong date from the client
-                self._finishSync(serverData.syncDate, tx);
-            },
-            cbTransactionError,
-            cbTransactionSuccess);
+                self._finishSync(serverData.syncDate, tx, callBack(0));
+            });
             return;
         }
         self.db.transaction(function(tx) {
@@ -342,13 +325,11 @@ var DBSYNC = {
                     if (counterNbTable === nbTables) {
                         //TODO set counterNbElm to info
                         self.syncResult.nbUpdated = counterNbElm;
-                        self._finishSync(serverData.syncDate, tx);
+                        self._finishSync(serverData.syncDate, tx, callBack);
                     }
                 });//end getExisting Id
             });//end forEach
-        }, 
-        cbTransactionError, 
-        cbTransactionSuccess);//end tx
+        });//end tx
     },
     /** return the listIdToCheck curated from the id that doesn't exist in tableName and idName
      * (used in the DBSync class to know if we need to insert new elem or just update)
@@ -372,7 +353,7 @@ var DBSYNC = {
             dataCallBack(idsInDb);
         });
     },
-    _finishSync: function(syncDate, tx) {
+    _finishSync: function(syncDate, tx, callBack) {
         var self = this, tableName, idsToDelete, idName, i, idValue, idsString;
         this.firstSync = false;
         this.syncInfo.lastSyncDate = syncDate;
@@ -405,6 +386,10 @@ var DBSYNC = {
                 self._executeSql('DELETE FROM new_elem WHERE table_name = "'+tableName+'" AND id IN ('+idsString+')', [], tx);
             }
         }
+
+        callBack();
+        self.clientData = null;
+        self.serverData = null;
     },
 
 
