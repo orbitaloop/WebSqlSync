@@ -239,6 +239,7 @@ var DBSYNC = {
         XHR.overrideMimeType = 'application/json;charset=UTF-8';
         XHR.open("POST", self.serverUrl, true);
         XHR.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        XHR.setRequestHeader("Accept-Encoding", "gzip, deflate");
         XHR.upload.addEventListener("progress", uploadProgressCallBack, false);
         XHR.addEventListener("progress", downloadProgressCallBack, false);
         XHR.onreadystatechange = function () {
