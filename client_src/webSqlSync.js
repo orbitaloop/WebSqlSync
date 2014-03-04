@@ -283,8 +283,9 @@ var DBSYNC = {
             var counterNbElm = 0;
             self.tablesToSync.forEach(function(table) {
                 var currData = serverData.data[table.tableName];
-                if (typeof currData === "undefined") {
+                if (!currData) {
                     //Should always be defined (even if 0 elements)
+                    //Must not be null
                     currData = [];
                 }
                 var nb = currData.length;
