@@ -234,6 +234,7 @@ DBSYNC = {
 			self.syncResult.syncOK = false;
 			self.syncResult.codeStr = 'syncKoServer';
 			if (serverData) {
+				self.syncResult.status = serverData.status;
 				self.syncResult.message = serverData.message;
 			} else {
 				self.syncResult.message = 'No answer from the server';
