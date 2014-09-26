@@ -156,7 +156,7 @@ var DBSYNC = {
                     self.syncResult.localDataUpdated = self.syncResult.nbUpdated > 0;
                     self.syncResult.syncOK = true;
                     self.syncResult.codeStr = 'syncOk';
-                    self.syncResult.message = 'Data synchronized successfuly. ('+self.syncResult.nbSent+
+                    self.syncResult.message = 'Data synchronized successfully. ('+self.syncResult.nbSent+
                         ' new/modified element saved, '+self.syncResult.nbUpdated+' updated)';
                     self.syncResult.serverAnswer = serverData;//include the original server answer, just in case
                     self.cbEndSync(self.syncResult);
