@@ -62,8 +62,9 @@ var DBSYNC = {
      * @param {Object} callBack(firstInit) : called when init finished.
      * @param {Object} username : username for basci authentication support
      * @param {Object} password : password for basci authentication support
+     * @param {Object} timeout : the timeout in milliseconds for the ajax request making the sync
      */
-    initSync: function(theTablesToSync, dbObject, theSyncInfo, theServerUrl, callBack, username, password) {
+    initSync: function(theTablesToSync, dbObject, theSyncInfo, theServerUrl, callBack, username, password, timeout) {
         var self = this, i = 0;
         this.db = dbObject;
         this.serverUrl = theServerUrl;
@@ -71,6 +72,7 @@ var DBSYNC = {
         this.syncInfo = theSyncInfo;
         this.username=username;
         this.password=password;
+        this.timeout = timeout;
         
         //Handle optional id :
         for (i = 0; i < self.tablesToSync.length; i++) {
@@ -161,6 +163,12 @@ var DBSYNC = {
                     self.syncResult.serverAnswer = serverData;//include the original server answer, just in case
                     self.cbEndSync(self.syncResult);
                 });
+            }, function() {
+                // Called when a timeout occurred
+                self.syncResult.syncOK = false;
+                self.syncResult.codeStr = 'timeout';
+                self.syncResult.message = 'The server is unavailable, please try again later';
+                self.cbEndSync(self.syncResult);
             });
         });
 
@@ -227,8 +235,9 @@ var DBSYNC = {
     },
 
 
-    _sendDataToServer: function(dataToSync, callBack) {
+    _sendDataToServer: function(dataToSync, callBack, timeoutCallBack) {
         var self = this;
+        var xhrBusy = true;
 
         var XHR = new window.XMLHttpRequest(),
                 data = JSON.stringify(dataToSync);
@@ -245,6 +254,7 @@ var DBSYNC = {
         XHR.onreadystatechange = function () {
             var serverAnswer;
             if(4 === XHR.readyState) {
+                xhrBusy = false;
                 try {
                     serverAnswer = JSON.parse(XHR.responseText);
                 } catch(e) {
@@ -266,6 +276,13 @@ var DBSYNC = {
             }
         };
 
+        setTimeout(function() {
+            if (xhrBusy === true) {
+                XHR.abort();
+                timeoutCallBack();
+            }
+        }, self.timeout);
+
         XHR.send(data);
 
     },
@@ -278,6 +295,7 @@ var DBSYNC = {
             self.syncResult.syncOK = false;
             self.syncResult.codeStr = 'syncKoServer';
             if (serverData) {
+                self.syncResult.status = serverData.status;
                 self.syncResult.message = serverData.message;
             } else {
                 self.syncResult.message = 'No answer from the server';
