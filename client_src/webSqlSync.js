@@ -221,6 +221,10 @@ var DBSYNC = {
                     }
                 });
             });//end for each
+		}, function (error) {
+            console.log('Transaction ERROR: ' + error.message);
+        }, function () {
+            console.log('Populated backup data');
         });//end tx
     },
 
@@ -503,10 +507,12 @@ var DBSYNC = {
 
         var nb = members.length;
         for (var i = 0; i < nb; i++) {
-            sql += '"' + members[i] + '" = "' + values[i] + '"';
-            if (i < nb - 1) {
-                sql += ', ';
-            }
+			if(values[i] != null) {
+				sql += '"' + members[i] + '" = "' + values[i] + '"';
+				if (i < nb - 1) {
+					sql += ', ';
+				}
+			}
         }
 
         return sql;
