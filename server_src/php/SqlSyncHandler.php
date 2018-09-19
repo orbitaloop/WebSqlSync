@@ -10,7 +10,7 @@
 		private $clientData,$jsonData;
 		
 		// well formatted Answer for WebSqlSync Script
-		private $serverAnswer = array("result"=> '',"message" => '', "sync_date" => '',"data" => array());
+		private $serverAnswer = array("result"=> '',"message" => '', "syncDate" => '',"data" => array());
 		
 		/*
 		 * __construct 
@@ -47,7 +47,7 @@
 			
 			$this -> serverAnswer['message'] = $message;
 			$this -> serverAnswer['data'] = $data;
-			$this -> serverAnswer['sync_date'] = strtotime("now");
+			$this -> serverAnswer['syncDate'] = strtotime("now");
 			
 			echo json_encode($this -> serverAnswer);
 			
