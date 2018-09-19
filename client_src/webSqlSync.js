@@ -503,10 +503,12 @@ var DBSYNC = {
 
         var nb = members.length;
         for (var i = 0; i < nb; i++) {
-            sql += '"' + members[i] + '" = "' + values[i] + '"';// if you have pb saving the 'null' string to null values coming from the service, just remove the doble quote and test it well. then make a pull request, thanks. See: https://github.com/orbitaloop/WebSqlSync/issues/30
-            if (i < nb - 1) {
-                sql += ', ';
-            }
+	    if (values[i] != null) {//To avoid pb saving the 'null' string to null values coming from the server. See: https://github.com/orbitaloop/WebSqlSync/issues/30
+            	sql += '"' + members[i] + '" = "' + values[i] + '"';
+            	if (i < nb - 1) {
+                    sql += ', ';
+            	}
+	    }
         }
 
         return sql;
