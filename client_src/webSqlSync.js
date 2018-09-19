@@ -492,7 +492,7 @@ var DBSYNC = {
     },
 
     _buildUpdateSQL: function(tableName, objToUpdate) {
-        /*ex UPDATE "nom de table" SET colonne 1 = [valeur 1], colonne 2 = [valeur 2] WHERE {condition}*/
+        /*ex UPDATE "nom de table" SET colonne 1 = [value 1], colonne 2 = [value 2] WHERE {condition}*/
         var self = this;
         var sql = 'UPDATE ' + tableName + ' SET ';
         var members = self._getAttributesList(objToUpdate);
@@ -503,7 +503,7 @@ var DBSYNC = {
 
         var nb = members.length;
         for (var i = 0; i < nb; i++) {
-            sql += '"' + members[i] + '" = "' + values[i] + '"';
+            sql += '"' + members[i] + '" = "' + values[i] + '"';// if you have pb saving the 'null' string to null values coming from the service, just remove the doble quote and test it well. then make a pull request, thanks. See: https://github.com/orbitaloop/WebSqlSync/issues/30
             if (i < nb - 1) {
                 sql += ', ';
             }
