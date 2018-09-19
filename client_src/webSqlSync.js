@@ -72,7 +72,7 @@ var DBSYNC = {
         this.syncInfo = theSyncInfo;
         this.username=username;
         this.password=password;
-        this.timeout = timeout;
+        this.timeout = timeout === null ? 3000 : timeout;
         
         //Handle optional id :
         for (i = 0; i < self.tablesToSync.length; i++) {
