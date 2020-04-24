@@ -63,7 +63,7 @@ Where callBackSyncProgress is a function called at every step of the synchroniza
 Client / server communication
 =============
 Currently, there is no generic server code (contribution are welcome), but you can find  example server code (in php & java) in the directory server_src_/. 
-Or you can checkout this cool sample project : https://github.com/abeauseigle/webSqlApp (a CRUD made by @abeauseigle with WebSQLSync, and PHP/MySQL for the server part).
+Or you can checkout this cool sample project : https://github.com/abeauseigle/TodoApp2 (a CRUD made by @abeauseigle with WebSQLSync, and PHP/MySQL for the server part).
 
 You can also run the QUnit test to understand the communication between the client (web app) and the server and eventually test your implementation of the server.
 
@@ -130,6 +130,6 @@ I hope it will help you to implement your own server logic, or provide an exampl
 ## Limitations:
 
  - DELETE are not handled. But an easy workaround is to do a logic delete with an update (ex. UPDATE elm SET flag='DELETED')
- - There are no example of generic server side sync for now. But there are some examples of server code in different languages (but you will need to adapt it to your needs). Check the server_src_/ directory. And there is this cool and complete example of CRUD project: https://github.com/abeauseigle/webSqlApp and this TODO App: https://github.com/abeauseigle/TodoApp  -> Contribution of server code are welcome (generic or not)!!
+ - There are no example of generic server side sync for now. But there are some examples of server code in different languages (but you will need to adapt it to your needs). Check the server_src_/ directory. And there is this cool and complete example of CRUD project: https://github.com/abeauseigle/webSqlApp and this TODO App: https://github.com/abeauseigle/TodoApp2  -> Contribution of server code are welcome (generic or not)!!
  - Need to add even more JQunit test cases. But this code is working on more than 25 apps (iOS/Android) in production, with millions of db rows synchronized
  - ~~There is one dependency to JQuery (used only to send data with AJAX, look for jQuery.ajax). I welcome any pull request to remove this dependency~~ DONE, thank you Takeno
