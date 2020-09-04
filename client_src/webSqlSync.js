@@ -210,7 +210,28 @@ var DBSYNC = {
 
             self.tablesToSync.forEach(function(currTable) {//a simple for will not work here because we have an asynchronous call inside
                 self._getDataToSave(currTable.tableName, currTable.idName, self.firstSync, tx, function(data) {
-                    dataToSync.data[currTable.tableName] = data;
+                    var my_data = [ ];
+                    for(var i = 0; i < data.length; i++) {
+                        var my_item = { };
+                        for(var p in data[i]) {
+                            if(currTable.exclude && currTable.exclude.upload && currTable.exclude.upload.length) {
+                                var excluded = false;
+                                for(var f in currTable.exclude.upload) {
+                                    var field = currTable.exclude.upload[f];
+                                    if(field == p) {
+                                        excluded = true;
+                                        break;
+                                    }
+                                }
+                                if(!excluded)
+                                    my_item[p] = data[i][p];
+                            } else {
+                                my_item[p] = data[i][p];
+                            }
+                        }
+                        my_data.push(my_item);
+                    }
+                    dataToSync.data[currTable.tableName] = my_data;
                     nbData += data.length;
                     counter++;
                     if (counter === nbTables) {//only call the callback at the last table

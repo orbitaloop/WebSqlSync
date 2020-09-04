@@ -27,7 +27,8 @@ var SYNCDATA = {
     }, {
         tableName: 'stat'
     }, {
-        tableName: 'user_card'
+        tableName: 'user_card',
+        exclude: { upload: [ "user_avatar" ] }
     }, {
         tableName: 'variable',
         idName: 'name'
